@@ -1,0 +1,41 @@
+@import url(https://fonts.googleapis.com/css?family=Fira+Mono);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+html {
+  background-color: #FFF;
+  font-family: 'Open Sans', sans-serif;
+  height: 100%;
+  
+  body {
+    min-width: 650px;
+    margin: 0;
+    height: 100%;
+  }
+}
+
+header {
+  height: 30px;
+  background-color: #44a3de;
+  font-weight: bold;
+  padding-left: 20px;
+  padding-top: 10px;
+}
+
+.content {
+  height: calc(~"100vh - 40px");
+  width: 100%;
+  background-color: #ededed;
+  
+  .markup {
+    padding: 10px;
+  }
+  
+  .raw-text {
+    display: none;
+    font-family: 'Fira Mono';
+    padding: 3px;
+    margin: 0 auto;
+    resize: none;
+    height: calc(~"100vh - 50px");
+  }
+}
