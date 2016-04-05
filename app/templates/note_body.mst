@@ -1,0 +1,4 @@
+<div class="note" id="{{ uuid }}">
+  <div class="markup"></div>
+  <textarea cols="80" rows="1" class="raw-text"></textarea>
+</div>
