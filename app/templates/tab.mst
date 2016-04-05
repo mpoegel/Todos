@@ -1,3 +1,4 @@
 <div class="tab" id="{{ uuid }}">
-  {{ name }}
+  <span class="label">{{ name }}</span>
+  <input type="text" value="{{ name }}"></input>
 </div>
