@@ -1,7 +1,6 @@
 'use strict';
 
-const remote = require('electron').remote;
-const dialog = remote.dialog;
+const dialog = require('electron').remote.dialog;
 const fs = require('fs');
 
 const Tab = require('./tab');
@@ -31,4 +30,18 @@ module.exports.openSaveAsDialog = function(defaultPath) {
   }, function(filename) {
     Tab.hardSave(filename);
   });
+}
+
+/**
+ * 
+ */
+module.exports.confirmDialog = function(title, message, callback) {
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: ['Yes', 'No', 'Cancel'],
+    title: title,
+    message: message,
+    cancelId: 2,
+    noLink: true
+  }, callback);
 }

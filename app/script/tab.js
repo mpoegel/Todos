@@ -4,6 +4,7 @@ const Mustache = require('mustache');
 const _ = require('underscore');
 const $ = require('jquery');
 const fs = require('fs');
+const storage = require('electron-json-storage');
 
 var allTabs = {};
 module.exports.allTabs = allTabs;
@@ -34,10 +35,23 @@ class Tab
       $('.tabs').prepend( self.tab );
       _.each(allTabs, function(tab, uuid, list) { tab.setInactive(); });
       allTabs[ self.uuid ] = self;
-      $(document).on('click', '.tab#' + self.uuid, 
-        function() { self.setActive(); });
-      self.setActive();
       /*  */
+      $(document).on('click', '.tab#' + self.uuid, function() { 
+        self.setActive();
+      });
+      self.setActive();
+      $(document).on('click', '.tab#' + self.uuid + ' .close', function(event) {
+        try { self.hardSave(); } catch (e) {}
+        delete allTabs[self.uuid];
+        $('.tab#' + self.uuid).remove();
+        var tab_uuids = _.allKeys(allTabs);
+        if (tab_uuids.length === 0) {
+          $('.content').html('');
+          return;
+        }
+        allTabs[ tab_uuids[0] ].setActive();
+        event.preventDefault();
+      });      
       $(document).on('dblclick', '.content', function() {
         $('.content .markup').hide();
         $('.content .raw-text')
@@ -158,6 +172,16 @@ class Tab
     $('.content').html( self.body );    
   }
   
+  /**
+   * 
+   */
+  getData() { throw 'Not yet implemented'; }
+  
+  /**
+   * 
+   */
+  getType() { throw 'Note yet implemented'; }
+  
 }
 
 /* export static Tab methods only */
@@ -267,6 +291,23 @@ class NoteTab extends Tab
    * 
    */
   getFileType() { return 'md'; }
+  
+  /**
+   * 
+   */
+  getData() 
+  {
+    var self = this;
+    return {
+      raw_text: self.raw_text,
+      body: self.body
+    };
+  }
+  
+  /**
+   * 
+   */
+  getType() { return 'note'; }
     
 }
 module.exports.NoteTab = NoteTab;
@@ -297,5 +338,64 @@ class TodoTab extends Tab
    */
   getFileType() { return 'todo'; }
   
+  /**
+   * 
+   */
+  getData() 
+  { 
+    return {}; 
+  }
+  
+  /**
+   * 
+   */
+  getType() { return 'todo'; }
+  
 }
 module.exports.TodoTab = TodoTab;
+
+
+/**
+ * 
+ */
+module.exports.saveCache = function(callback) {
+  var open_files = [];
+  _.each(allTabs, function(tab, uuid, list) {
+    if (tab.active) tab.softSave();
+    open_files.push({
+      uuid: uuid,
+      type: tab.getType(),
+      name: tab.name,
+      filename: tab.filename,
+      filepath: tab.filepath,
+      data: tab.getData()
+    });
+  });
+  storage.set('tab_data', open_files, callback);
+}
+
+/**
+ * 
+ */
+module.exports.restoreCache = function() {
+  storage.get('tab_data', function(error, cached_files) {
+    _.each(cached_files, function(d, list) {
+      if (d.type === 'note') {
+        var tab = new NoteTab(d.name, function(self) {
+          self.filename = d.filename;
+          self.filepath = d.filepath;
+          self.raw_text = d.data.raw_text;
+          self.body = d.data.body;
+          $('.content').attr('id', self.uuid);
+          self.softLoad();
+        });
+      } else if (d.type === 'todo') {
+        var tab = new TodoTab(d.name);
+        tab.filename = d.filename;
+        tab.filepath = d.filepath;
+      }
+    });
+  });
+}
+
+module.exports.storage = storage;

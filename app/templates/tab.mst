@@ -1,4 +1,5 @@
 <div class="tab" id="{{ uuid }}">
   <span class="label">{{ name }}</span>
   <input type="text" value="{{ name }}"></input>
+  <span class="close">&times;</span>
 </div>

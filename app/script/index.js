@@ -7,7 +7,17 @@ var Tab = require('./script/tab');
 require('./script/menu');
 require('./script/file');
 
-var t1 = new Tab.TodoTab('my todo tab');
-var t2 = new Tab.NoteTab('my note tab');
+var cached = false;
+window.onbeforeunload = function(e) {
+  if (! cached) {
+    e.returnValue = false;
+    Tab.saveCache(function() {
+      cached = true;
+      window.close();
+    });
+  }
+}
+
+Tab.restoreCache();
 
 var allTabs = Tab.allTabs;
